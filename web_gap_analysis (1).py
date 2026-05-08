@@ -14,8 +14,56 @@ st.set_page_config(
 # ── Custom CSS ──────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
+    /* Main background dark */
     .main { background-color: #0f1117; }
     .block-container { padding-top: 1rem; }
+
+    /* ── WHITE SIDEBAR ── */
+    [data-testid="stSidebar"] {
+        background-color: #ffffff !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: #1a1a2e !important;
+    }
+    [data-testid="stSidebar"] .stRadio label {
+        color: #1a1a2e !important;
+        font-weight: 500;
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label {
+        background-color: #f0f2f6;
+        border-radius: 8px;
+        padding: 6px 12px;
+        margin-bottom: 4px;
+        border: 1px solid #dde1ea;
+        color: #1a1a2e !important;
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label:hover {
+        background-color: #e2e6f0;
+    }
+    /* Active radio option highlight */
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label[data-checked="true"],
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] [aria-checked="true"] ~ label {
+        background-color: #5b6af0 !important;
+        color: #ffffff !important;
+    }
+    [data-testid="stSidebar"] hr {
+        border-color: #dde1ea !important;
+    }
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {
+        color: #1a1a2e !important;
+    }
+    [data-testid="stSidebar"] .stCaption,
+    [data-testid="stSidebar"] small,
+    [data-testid="stSidebar"] .caption {
+        color: #555577 !important;
+    }
+    /* Sidebar scrollbar */
+    [data-testid="stSidebar"]::-webkit-scrollbar { width: 6px; }
+    [data-testid="stSidebar"]::-webkit-scrollbar-track { background: #f0f2f6; }
+    [data-testid="stSidebar"]::-webkit-scrollbar-thumb { background: #c0c4d6; border-radius: 3px; }
+
+    /* ── METRIC CARDS (main area) ── */
     .metric-card {
         background: linear-gradient(135deg, #1e2130, #252a3a);
         border: 1px solid #2d3550;
@@ -28,6 +76,8 @@ st.markdown("""
     .metric-delta { font-size: 12px; margin-top: 4px; }
     .delta-pos { color: #4ade80; }
     .delta-neg { color: #f87171; }
+
+    /* ── SECTION HEADERS ── */
     .section-header {
         color: #c5d0e8;
         font-size: 18px;
@@ -36,8 +86,16 @@ st.markdown("""
         padding-left: 10px;
         margin: 18px 0 12px 0;
     }
-    [data-testid="stSidebar"] { background-color: #13151f; }
-    div[data-testid="metric-container"] { background: #1e2130; border-radius: 10px; padding: 10px; }
+
+    /* Native streamlit metric widget */
+    div[data-testid="metric-container"] {
+        background: #1e2130;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    /* Dataframe dark */
+    .stDataFrame { background-color: #1e2130; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -45,16 +103,13 @@ st.markdown("""
 FILE_NAME = "Stackly_PowerBI_Dataset.xlsx"
 
 def find_file(filename):
-    # 1. Same folder as this script
     script_dir = os.path.dirname(os.path.abspath(__file__))
     candidate = os.path.join(script_dir, filename)
     if os.path.exists(candidate):
         return candidate
-    # 2. Current working directory
     candidate = os.path.join(os.getcwd(), filename)
     if os.path.exists(candidate):
         return candidate
-    # 3. Common Windows/Mac/Linux locations
     home = os.path.expanduser("~")
     for folder in ["Downloads", "Desktop", "Documents", ""]:
         candidate = os.path.join(home, folder, filename) if folder else os.path.join(home, filename)
@@ -71,7 +126,7 @@ if FILE_PATH is None:
     uploaded = st.file_uploader("Upload Stackly_PowerBI_Dataset.xlsx", type=["xlsx"])
     if uploaded is None:
         st.stop()
-    FILE_PATH = uploaded   # pandas accepts file-like objects directly
+    FILE_PATH = uploaded
 
 # ── Load Data ─────────────────────────────────────────────────────────────────
 @st.cache_data
@@ -144,11 +199,11 @@ if domain == "🏠 Overview":
     total_loans      = f"₹{loans['Amount_INR'].sum()/1e7:.1f} Cr"
     total_revenue    = f"${kpi['Revenue_USD'].sum()/1e6:.2f}M"
 
-    col1.markdown(metric_card("Total Placements",   int(total_placements), "+12% MoM"),                unsafe_allow_html=True)
-    col2.markdown(metric_card("Security Incidents", total_incidents,       "50 total tracked"),        unsafe_allow_html=True)
-    col3.markdown(metric_card("Active Clients",     active_clients,        f"of {len(clients)} total"),unsafe_allow_html=True)
-    col4.markdown(metric_card("Loans Portfolio",    total_loans,           "40 applications"),         unsafe_allow_html=True)
-    col5.markdown(metric_card("Total Revenue",      total_revenue,         "+8% YoY"),                 unsafe_allow_html=True)
+    col1.markdown(metric_card("Total Placements",   int(total_placements), "+12% MoM"),                 unsafe_allow_html=True)
+    col2.markdown(metric_card("Security Incidents", total_incidents,       "50 total tracked"),         unsafe_allow_html=True)
+    col3.markdown(metric_card("Active Clients",     active_clients,        f"of {len(clients)} total"), unsafe_allow_html=True)
+    col4.markdown(metric_card("Loans Portfolio",    total_loans,           "40 applications"),          unsafe_allow_html=True)
+    col5.markdown(metric_card("Total Revenue",      total_revenue,         "+8% YoY"),                  unsafe_allow_html=True)
 
     st.markdown("---")
 
